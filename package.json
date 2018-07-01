@@ -1,0 +1,36 @@
+{
+  "name": "automation-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "gpio-server.js",
+  "scripts": {
+    "start": "npm run build && npm run watch",
+    "build": "npm run build-ts",
+    "serve": "node dist/gpio-server.js",
+    "watch": "concurrently -k -p \"[{name}]\" -n \"TypeScript,Node,pigpio\" -c \"yellow.bold,cyan.bold,green.bold\" \"npm run watch-ts\"",
+    "test": "jest --forceExit --coverage",
+    "build-ts": "tsc",
+    "watch-ts": "tsc-watch --onSuccess \"nodemon dist/gpio-server.js\"",
+    "tslint": "tslint -c tslint.json -p tsconfig.json"
+  },
+  "author": "Netherium",
+  "license": "MIT",
+  "dependencies": {
+    "ds18b20": "^0.1.0",
+    "express": "^4.16.3",
+    "onoff": "^3.1.0",
+    "pigpio": "^1.1.0",
+    "socket.io": "^2.1.1"
+  },
+  "devDependencies": {
+    "typescript": "~2.7.2",
+    "@types/express": "^4.16.0",
+    "@types/node": "^8.10.20",
+    "@types/socket.io": "^1.4.36",
+    "concurrently": "^3.6.0",
+    "nodemon": "^1.14.11",
+    "pigpio-mock": "0.0.1",
+    "tsc-watch": "^1.0.22",
+    "tslint": "^5.10.0"
+  }
+}

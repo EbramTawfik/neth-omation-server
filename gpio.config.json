@@ -1,0 +1,8 @@
+{
+  "LED_PIN": 18,
+  "LASER_PIN" : 23,
+  "RGB_RED_PIN" : 13,
+  "RGB_GREEN_PIN" : 19,
+  "RGB_BLUE_PIN" : 26,
+  "RELAY_PIN": 24
+}
