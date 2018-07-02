@@ -21,7 +21,7 @@ export class GpioService {
   private ledAdapter: Gpio;
   private relayAdapter: Gpio;
 
-  private laserStatus = true;
+  private laserStatus = false;
   private laserAdapter: Gpio;
 
   private rgbStatus: RgbEvent = {
@@ -38,7 +38,7 @@ export class GpioService {
 
     this.gpioConfig = gpioConfig;
 
-    this.ledAdapter = new Gpio(gpioConfig.LASER_PIN, 'out');
+    this.ledAdapter = new Gpio(gpioConfig.LED_PIN, 'out');
     this.ledAdapter.writeSync(Number(this.ledStatus));
 
 
@@ -50,7 +50,7 @@ export class GpioService {
     }, 5000);
 
     // Set Gpio Pins to adapters and initialize their status
-    // RGB Requires 'Pigpio' whilst momentary switches require 'onoff'
+    // RGB Requires 'Pigpio' whilst simple switches require 'onoff'
     this.laserAdapter = new Gpio(gpioConfig.LASER_PIN, 'out');
     this.laserAdapter.writeSync(Number(this.laserStatus));
 
@@ -62,6 +62,10 @@ export class GpioService {
     this.rgbBlueAdapter.pwmWrite(Number(this.rgbStatus.blue));
   }
 
+  /**
+   * Emit all events for a new client connected
+   * @param io
+   */
   public initializeConnectEmissions(io) {
     io.emit(GpioEventTypes.LED, {'status': this.ledStatus});
     io.emit(GpioEventTypes.LASER, {'status': this.laserStatus});
@@ -73,6 +77,14 @@ export class GpioService {
     console.log('RGB:   ', this.rgbStatus.red, ' ', this.rgbStatus.green, ' ', this.rgbStatus.blue);
   }
 
+  /**
+   * Register Led event
+   * Handled via writeSync() from 'onoff'
+   * Emits a GpioEventTypes.LED event
+   * Note: writeSync() accepts only 0/1 values
+   * @param {NodeJS.Socket} socket
+   * @param {SocketIO.Server} io
+   */
   public registerLedEvent(socket: Socket, io: socketIo.Server): void {
     socket.on(GpioEventTypes.LED, (d: LedEvent) => {
       console.log('On', GpioEventTypes.LED);
@@ -84,6 +96,14 @@ export class GpioService {
     });
   }
 
+  /**
+   * Register Lazer event
+   * Handled via writeSync() from 'onoff'
+   * Emits a GpioEventTypes.LASER event
+   * Note: writeSync() accepts only 0/1 values
+   * @param {NodeJS.Socket} socket
+   * @param {SocketIO.Server} io
+   */
   public registerLaserEvent(socket: Socket, io: socketIo.Server): void {
     socket.on(GpioEventTypes.LASER, (d: LaserEvent) => {
       console.log('On', GpioEventTypes.LASER);
@@ -95,6 +115,13 @@ export class GpioService {
     });
   }
 
+  /**
+   * Register RGB event
+   * Each color handled via pigpio.pwmWrite with value between 0-255
+   * Emits a GpioEventTypes.RGB event
+   * @param {NodeJS.Socket} socket
+   * @param {SocketIO.Server} io
+   */
   public registerRGBEvent(socket: Socket, io: socketIo.Server): void {
     socket.on(GpioEventTypes.RGB, (d: RgbEvent) => {
       console.log('On', GpioEventTypes.RGB);
@@ -113,7 +140,10 @@ export class GpioService {
 
   /**
    * Register temperature event
-   * Emits temperature every 60 seconds using ds18b20 sensor
+   * Handled via 'ds18b20'
+   * Emits temperature every 5 seconds
+   * Note: temperature module needs to start with '28-'
+   * https://github.com/chamerling/ds18b20
    * @param io
    */
   public registerTemperatureEvent(io: any): void {

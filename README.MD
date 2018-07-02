@@ -5,7 +5,7 @@ Implemented in Express with Socket.io emitting real time events and syncing acro
 ## Requirements
 -  Raspberry Pi (Tested on RPi 3 w/ Raspbian Stretch)
 
-Any of the followings:
+Any of the following modules:
 - Led
 - Lazer
 - RGB
