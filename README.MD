@@ -21,7 +21,7 @@ Any of the following modules:
 6. Build and run `tsc && sudo node ./dist/gpio-server.js`  
 
 ## Frontend
-If you need a frontend UI to control your backend server you can find [neth-omation-client](https://github.com/Netherium/neth-omation-server) made with Angular 6
+If you need a frontend UI to control your backend server you can find [neth-omation-client](https://github.com/Netherium/neth-omation-client) made with Angular 6
 
 ## GPIO packages used
 * [onoff](https://github.com/fivdi/onoff)
