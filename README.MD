@@ -1,6 +1,6 @@
 # Neth-omation-server
 A raspberry pi automation server to remotely control GPIO.
-Implemented in Express with Socket.io emitting real time events and syncing across multiple devices 
+Implemented in Express with Socket.io emitting real time events and syncing across multiple devices.
 
 ## Requirements
 -  Raspberry Pi (Tested on RPi 3 w/ Raspbian Stretch)
@@ -19,6 +19,9 @@ Any of the following modules:
 4. Set accordingly your pin numbers in `gpio.config.json` (<b>GPIO pins</b> and not physical)
 5. Comment out init/register functions for any of the modules not used in `gpio.service.ts`
 6. Build and run `tsc && sudo node ./dist/gpio-server.js`  
+
+## Frontend
+If you need a frontend UI to control your backend server you can find [neth-omation-client](https://github.com/Netherium/neth-omation-server) made with Angular 6
 
 ## GPIO packages used
 * [onoff](https://github.com/fivdi/onoff)

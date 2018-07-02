@@ -1,7 +1,7 @@
 {
-  "name": "automation-server",
+  "name": "neth-omation-server",
   "version": "1.0.0",
-  "description": "",
+  "description": "A raspberry pi automation server to remotely control GPIO. Implemented in Express with Socket.io emitting real time events and syncing across multiple devices",
   "main": "gpio-server.js",
   "scripts": {
     "start": "npm run build && npm run watch",
