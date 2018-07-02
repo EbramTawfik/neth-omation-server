@@ -3,6 +3,7 @@ A raspberry pi automation server to remotely control GPIO.
 Implemented in Express with Socket.io emitting real time events and syncing across multiple devices.
 
 <img src="https://raw.githubusercontent.com/Netherium/neth-omation-server/master/images/preview.png">
+
 ## Requirements
 -  Raspberry Pi (Tested on RPi 3 w/ Raspbian Stretch)
 
