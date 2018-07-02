@@ -13,7 +13,6 @@ const PIGpioInternal = require('pigpio');
 // pigpio-mock replacement for non raspbian environment
 // import { Gpio as PIGpio } from 'pigpio-mock';
 
-
 export class GpioService {
   private gpioConfig: GpioConfigInterface;
   private temperatureInterval = null;
@@ -25,9 +24,9 @@ export class GpioService {
   private laserAdapter: Gpio;
 
   private rgbStatus: RgbEvent = {
-    red: 127,
-    green: 127,
-    blue: 127
+    red: 0,
+    green: 0,
+    blue: 0
   };
 
   private rgbRedAdapter: PIGpio;
@@ -150,13 +149,14 @@ export class GpioService {
     let parent = this;
     ds18b20.sensors(function (err, devices) {
       let deviceId = null;
-
+      let status;
       for (let i = 0; i < devices.length; i++) {
         if (devices[i].startsWith('28-')) {
           deviceId = devices[i];
           parent.temperatureInterval = setInterval(() => {
-            console.log('TEMPERATURE', ds18b20.temperatureSync(deviceId));
-            io.emit(GpioEventTypes.TEMPERATURE, {'status': ds18b20.temperatureSync(deviceId)});
+            status = ds18b20.temperatureSync(deviceId);
+            console.log('TEMPERATURE', status);
+            io.emit(GpioEventTypes.TEMPERATURE, {'status': status});
           }, 5000);
         }
       }
