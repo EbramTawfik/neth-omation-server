@@ -4,7 +4,7 @@ import { GpioEventTypes } from './models/gpioEventType.enum';
 import { LedEvent } from './models/ledEvent.model';
 import { LaserEvent } from './models/laserEvent.model';
 import { RgbEvent } from './models/rgbEvent.model';
-import { Gpio } from 'onoff';
+import { Gpio, BinaryValue } from 'onoff';
 import { GpioConfigInterface } from './gpio.config.interface';
 import * as ds18b20 from 'ds18b20';
 import { Gpio as PIGpio } from 'pigpio';
@@ -16,11 +16,11 @@ const PIGpioInternal = require('pigpio');
 export class GpioService {
   private gpioConfig: GpioConfigInterface;
   private temperatureInterval = null;
-  private ledStatus = false;
+  private ledStatus: BinaryValue = Gpio.LOW;
   private ledAdapter: Gpio;
   private relayAdapter: Gpio;
 
-  private laserStatus = false;
+  private laserStatus: BinaryValue = Gpio.LOW;
   private laserAdapter: Gpio;
 
   private rgbStatus: RgbEvent = {
@@ -38,26 +38,28 @@ export class GpioService {
     this.gpioConfig = gpioConfig;
 
     this.ledAdapter = new Gpio(gpioConfig.LED_PIN, 'out');
-    this.ledAdapter.writeSync(Number(this.ledStatus));
+    this.ledAdapter.writeSync(this.ledStatus);
 
 
     this.relayAdapter = new Gpio(gpioConfig.RELAY_PIN, 'out');
     let relayStatus = false;
 
     setInterval(() => {
-      this.relayAdapter.writeSync(Number(relayStatus = !relayStatus));
+      let stat = (relayStatus = !relayStatus) ? Gpio.LOW : Gpio.HIGH;
+
+      this.relayAdapter.writeSync(stat);
     }, 5000);
 
     // Set Gpio Pins to adapters and initialize their status
     // RGB Requires 'Pigpio' whilst simple switches require 'onoff'
     this.laserAdapter = new Gpio(gpioConfig.LASER_PIN, 'out');
-    this.laserAdapter.writeSync(Number(this.laserStatus));
+    this.laserAdapter.writeSync(this.laserStatus);
 
-    this.rgbRedAdapter = new PIGpio(gpioConfig.RGB_RED_PIN, {mode: PIGpio.OUTPUT});
+    this.rgbRedAdapter = new PIGpio(gpioConfig.RGB_RED_PIN, { mode: PIGpio.OUTPUT });
     this.rgbRedAdapter.pwmWrite(Number(this.rgbStatus.red));
-    this.rgbGreenAdapter = new PIGpio(gpioConfig.RGB_GREEN_PIN, {mode: PIGpio.OUTPUT});
+    this.rgbGreenAdapter = new PIGpio(gpioConfig.RGB_GREEN_PIN, { mode: PIGpio.OUTPUT });
     this.rgbGreenAdapter.pwmWrite(Number(this.rgbStatus.green));
-    this.rgbBlueAdapter = new PIGpio(gpioConfig.RGB_BLUE_PIN, {mode: PIGpio.OUTPUT});
+    this.rgbBlueAdapter = new PIGpio(gpioConfig.RGB_BLUE_PIN, { mode: PIGpio.OUTPUT });
     this.rgbBlueAdapter.pwmWrite(Number(this.rgbStatus.blue));
   }
 
@@ -66,8 +68,8 @@ export class GpioService {
    * @param io
    */
   public initializeConnectEmissions(io) {
-    io.emit(GpioEventTypes.LED, {'status': this.ledStatus});
-    io.emit(GpioEventTypes.LASER, {'status': this.laserStatus});
+    io.emit(GpioEventTypes.LED, { 'status': this.ledStatus });
+    io.emit(GpioEventTypes.LASER, { 'status': this.laserStatus });
     io.emit(GpioEventTypes.RGB, this.rgbStatus);
     console.log('Initializing');
     console.log('============');
@@ -89,7 +91,7 @@ export class GpioService {
       console.log('On', GpioEventTypes.LED);
       this.ledStatus = d.status;
       if (this.ledStatus !== this.ledAdapter.readSync()) {
-        this.ledAdapter.writeSync(Number(this.ledStatus));
+        this.ledAdapter.writeSync(this.ledStatus);
         io.emit(GpioEventTypes.LED, d);
       }
     });
@@ -108,7 +110,7 @@ export class GpioService {
       console.log('On', GpioEventTypes.LASER);
       this.laserStatus = d.status;
       if (this.laserStatus !== this.laserAdapter.readSync()) {
-        this.laserAdapter.writeSync(Number(this.laserStatus));
+        this.laserAdapter.writeSync(this.laserStatus);
         io.emit(GpioEventTypes.LASER, d);
       }
     });
@@ -125,8 +127,8 @@ export class GpioService {
     socket.on(GpioEventTypes.RGB, (d: RgbEvent) => {
       console.log('On', GpioEventTypes.RGB);
       if (this.rgbStatus.red !== d.red || this.rgbStatus.red !== this.rgbRedAdapter.getPwmDutyCycle()
-          || this.rgbStatus.green !== d.green || this.rgbStatus.green !== this.rgbGreenAdapter.getPwmDutyCycle()
-          || this.rgbStatus.blue !== d.blue || this.rgbStatus.blue !== this.rgbBlueAdapter.getPwmDutyCycle()) {
+        || this.rgbStatus.green !== d.green || this.rgbStatus.green !== this.rgbGreenAdapter.getPwmDutyCycle()
+        || this.rgbStatus.blue !== d.blue || this.rgbStatus.blue !== this.rgbBlueAdapter.getPwmDutyCycle()) {
         this.rgbStatus = d;
         this.rgbRedAdapter.pwmWrite(Number(this.rgbStatus.red));
         this.rgbGreenAdapter.pwmWrite(Number(this.rgbStatus.green));
@@ -156,7 +158,7 @@ export class GpioService {
           parent.temperatureInterval = setInterval(() => {
             status = ds18b20.temperatureSync(deviceId);
             console.log('TEMPERATURE', status);
-            io.emit(GpioEventTypes.TEMPERATURE, {'status': status});
+            io.emit(GpioEventTypes.TEMPERATURE, { 'status': status });
           }, 5000);
         }
       }

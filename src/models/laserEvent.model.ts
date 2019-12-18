@@ -1,3 +1,5 @@
+import { BinaryValue } from "onoff";
+
 export class LaserEvent {
-  status: boolean;
+  status: BinaryValue;
 }
